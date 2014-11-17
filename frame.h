@@ -30,6 +30,7 @@ public:
     bool visible;
     bool axleVisible;
     bool perspectiveView;
+    int count;
     QPen pen;
     NVector Scale;
     NVector toMove;
@@ -54,6 +55,7 @@ private slots:
     void on_axleVisible_toggled(bool checked);
     void on_perspectiveView_toggled(bool checked);
     void on_zoom_sliderMoved(int position);
+    void on_Approximation_valueChanged(int arg1);
 };
 
 #endif // FRAME_H
