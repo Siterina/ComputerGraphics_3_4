@@ -11,7 +11,7 @@ Frame::Frame(QWidget *parent) :
     alpha(30), beta(0),
     lastX(0), lastY(0),
     visible(false), axleVisible(false),
-    perspectiveView(false),
+    perspectiveView(false), carcasVisible(false),
     Scale(1), toMove(0),
     count(20),
     ui(new Ui::Frame) {
@@ -53,25 +53,48 @@ double ScalarComposition(const NVector a, const NVector b) {
     return result;
 }
 
-/*float Widget::MakeColor(Triangle *t)
-{
-    QVector3D center(0.0, 0.0, 0.0);
-    center += t->vert1;
-    center += t->vert2;
-    center += t->vert3;
-    center /= 3;
-    QVector3D N = t->Normal();
-    QVector3D V (0.0, 0.0, 1.0);
-    QVector3D L (lightX, lightY, lightZ);
-    L -= center;
-    float d = L.length();
-    float f = 1.0 / (0.1 + 0.1 * d);
-    L.normalize();
-    QVector3D R = 2 * (QVector3D::dotProduct(N, L)) * N - L;
-    R.normalize();
-    return f * ( Ka * Ia + Kd * Id * QVector3D::dotProduct(L,N) +
-                 Ks * Is * pow (QVector3D::dotProduct(R,V), Alpha) );
-}*/
+double MakeColor(double centerX, double centerY, double centerZ, const NVector N) {
+    NVector center = NVector();
+    center.x += centerX / 3;
+    center.y += centerY / 3;
+    center.z += centerZ / 3;
+
+    //QVector3D N = t->Normal();
+    NVector V = NVector(); // (0.0, 0.0, 1.0);
+    V.x = 0;
+    V.y = 0;
+    V.z = 1;
+    NVector L = NVector();//(3, 3, 7); // lightX, lightY, lightZ
+    L.x = 3;
+    L.y = 3;
+    L.z = 7;
+
+    L = L - center;
+    //float d = L.length();
+    double d = sqrt(L.x * L.x + L.y * L.y + L.z * L.z);
+    //float f = 1.0 / (0.1 + 0.1 * d);
+    double f = 1.0 / (0.1 + 0.1 * d);
+    //L.normalize();
+    L.x /= d;
+    L.y /= d;
+    L.z /= d;
+    //QVector3D R = 2 * (QVector3D::dotProduct(N, L)) * N - L; // скалярное
+    NVector R = NVector();
+    R.x = N.x * 2 * ScalarComposition(N, L);
+    R.y = N.y * 2 * ScalarComposition(N, L);
+    R.z = N.z * 2 * ScalarComposition(N, L);
+    R = R - L;
+    d = sqrt(R.x * R.x + R.y * R.y + R.z * R.z);
+   // R.normalize();
+    R.x /= d;
+    R.y /= d;
+    R.z /= d;
+    //return f * ( Ka * Ia + Kd * Id * QVector3D::dotProduct(L,N) +
+            //     Ks * Is * pow (QVector3D::dotProduct(R,V), Alpha) );
+    return f * ( 0.1 * 0.2 + 1.0 * 0.6 * ScalarComposition(L,N) +
+                 0.5 * 0.5 * pow (ScalarComposition(R,V), 2) );
+
+}
 
 void swap(double &a, double &b)
 {
@@ -205,42 +228,7 @@ void Frame::paintEvent(QPaintEvent*) {
             bottom = true;
 
 
-    /***        draw figure carcas        ***/
-
-   /* for (int i = 0; i < size; i += 4) {
-        a = points[i + 1] - points[i];
-        b = points[i + 3] - points[i];
-        n = VectorComposition(a, b);
-
-        if(ScalarComposition(n, k) >= 0) {
-            painter.drawLine(points[i].x, points[i].y, points[i + 1].x, points[i + 1].y);
-            painter.drawLine(points[i + 1].x, points[i + 1].y, points[i + 2].x, points[i + 2].y);
-            painter.drawLine(points[i + 2].x, points[i + 2].y, points[i + 3].x, points[i + 3].y);
-            painter.drawLine(points[i + 3].x, points[i + 3].y, points[i].x, points[i].y);
-        }
-        else if(visible) {
-            pen.setColor(Qt::darkGray);
-            pen.setWidth(1);
-            pen.setStyle(Qt::DashLine);
-            painter.setPen(pen);
-            painter.drawLine(points[i].x, points[i].y, points[i + 1].x, points[i + 1].y);
-            painter.drawLine(points[i + 1].x, points[i + 1].y, points[i + 2].x, points[i + 2].y);
-            painter.drawLine(points[i + 2].x, points[i + 2].y, points[i + 3].x, points[i + 3].y);
-            painter.drawLine(points[i + 3].x, points[i + 3].y, points[i].x, points[i].y);
-        }
-        pen.setColor(Qt::black);
-        pen.setWidth(3);
-        pen.setStyle(Qt::SolidLine);
-        painter.setPen(pen);
-    }
-*/
-    if(bottom)
-        for(int i = 0; i < sizeBottom - 1; i++)
-            painter.drawLine(pointsBottom[i].x, pointsBottom[i].y, pointsBottom[i + 1].x, pointsBottom[i + 1].y);
-
-
     /***        colour figure         ***/
-
 
     for (int i = 0; i < points.size(); i+= 4) {
         a = points[i + 1] - points[i];
@@ -249,125 +237,58 @@ void Frame::paintEvent(QPaintEvent*) {
 
         if(ScalarComposition(n, k) >= 0) {
 
-
-           /* double x12 = abs(points[i].x - points[i + 1].x);
-            double y12 = abs(points[i].y - points[i + 1].y);
-            double x23 = abs(points[i + 1].x - points[i + 2].x);
-            double y23 = abs(points[i + 1].y - points[i + 2].y);
-            double x34 = abs(points[i + 2].x - points[i + 3].x);
-            double y34 = abs(points[i + 2].y - points[i + 3].y);
-            double x41 = abs(points[i + 3].x - points[i].x);
-            double y41 = abs(points[i + 3].y - points[i].y);*/
-
             double x1 = points[i].x, y1 = points[i].y;
             double x2 = points[i + 1].x, y2 = points[i + 1].y;
             double x3 = points[i + 2].x, y3 = points[i + 2].y;
             double x4 = points[i + 3].x, y4 = points[i + 3].y;
 
-           /* if(x1 > x2) {
-                swap(y1, y2);
-                swap(x1, x2);
-            }
-            if(x4 > x3) {
-                swap(y3, y4);
-                swap(x3, x4);
-            }
-            if(x1 > x4) {
-                swap(y1, y4);
-                swap(x1, x4);
-            }
-            if(x2 > x3) {
-                swap(y3, y2);
-                swap(x3, x2);
-            }
-            */
-           // float I = MakeColor(figure->triangles[i]);// переписать функцию
-            double I = 0.5;
+            double I = MakeColor(abs(x1 - x3)/2, abs(y1 - y3)/2, abs(points[i].z - points[i + 2].z)/2, n);// переписать функцию
+            //double I = 0.5;
             if (I > 1.0) I = 1.0;
             if (I < 0.0) I = 0.0;
 
-            //float R = (mColorR + lColorR) / 2;
-           // float G = (mColorG + lColorG) / 2;
-           // float B = (mColorB + lColorB) / 2;
-
+            //double R = (figureColorR + lightColorR) / 2;
+           // double G = (figureColorG + lightColorG) / 2;
+           // double B = (figureColorB + lightColorB) / 2;
             double R = 0;
             double G = 0;
-            double B = 255;
-
+            double B = 200;
             painter.setPen(QColor(R * I, G * I, B * I));
 
-           // painter.drawLine(x1, y1, x2, y2);
-           // painter.drawLine(x2, y2, x3, y3);
-           // painter.drawLine(x1, y1, x3, y3);
-
-           // if(points[i].x < points[i + 1].x)
-            //    for(double x = x1; x < x2; x+= 0.5)
-              //      painter.drawLine(x, y12/x12 * (x - x1) + y1, x - x41, y34/x34 * (x - x41 - x4) + y4);
-
+            // нижний треугольник
             if (y1 > y2) { swap (y1, y2);   swap (x1, x2); }
             if (y1 > y3) { swap (y1, y3);   swap (x1, x3); }
             if (y2 > y3) { swap (y3, y2);   swap (x3, x2); }
-            //if (y1 > y4) { swap (y1, y4);   swap (x1, x4); }
-            //if (y4 > y3) { swap (y3, y4);   swap (x3, x4); }
+
+            double dx12 = x2 - x1;
+            double dy12 = y2 - y1;
+            double dx32 = x2 - x3;
+            double dy32 = y2 - y3;
+            double dx31 = x1 - x3;
+            double dy31 = y1 - y3;
+            double dx13 = x3 - x1;
+            double dy13 = y3 - y1;
+            double dx14 = x4 - x1;
+            double dy14 = y4 - y1;
+            double dx34 = x4 - x3;
+            double dy34 = y4 - y3;
 
 
-
-
-
-            float dx12 = x2 - x1;
-            float dy12 = y2 - y1;
-            float dx32 = x2 - x3;
-            float dy32 = y2 - y3;
-            float dx31 = x1 - x3;
-            float dy31 = y1 - y3;
-            float dx13 = x3 - x1;
-            float dy13 = y3 - y1;
-
-            float dx14 = x4 - x1;
-            float dy14 = y4 - y1;
-            float dx34 = x4 - x3;
-            float dy34 = y4 - y3;
-
-
-            //double x12 = abs(x2 - x1);
-            //double y12 = abs(y2 - y1);
-            //double x23 = abs(x3 - x2);
-            //double y23 = abs(y3 - y2);
-            //double x13 = abs(x3 - x1);
-            //double y13 = abs(y3 - y1);
-
-            //painter.drawLine(x1, y1, x2, y2);
-            //painter.drawLine(x2, y2, x3, y3);
-            //painter.drawLine(x3, y3, x4, y4);
-            //painter.drawLine(x4, y4, x1, y1);
-
-
-
-            for (float y = y1; y < y2; y += 0.5)
+            for (double y = y1; y < y2; y += 0.5)
                  painter.drawLine (x1 + (dx12/dy12) * (y-y1) , y, x1 + (dx13/dy13) * (y-y1), y);
-
-            for (float y = y3; y > y2; y -= 0.5)
+            for (double y = y3; y > y2; y -= 0.5)
                  painter.drawLine (x3 + (dx32/dy32) * (y-y3) , y, x3 + (dx31/dy31) * (y-y3), y);
-
             if (dy13 != 0)
                painter.drawLine (x2 , y2, x1 + (dx13/dy13) * (y2-y1), y2);
-            if (dy13 != 0)
-                painter.drawLine (x3 + dx32 , y2, x3 + (dx13/dy13) * (y2-y3), y2);
 
 
-
-
-
-
+            // верхний треугольник
             x1 = points[i].x, y1 = points[i].y;
             x2 = points[i + 1].x, y2 = points[i + 1].y;
             x3 = points[i + 2].x, y3 = points[i + 2].y;
             x4 = points[i + 3].x, y4 = points[i + 3].y;
 
-
-            //if (y1 > y2) { swap (y1, y2);   swap (x1, x2); }
             if (y1 > y3) { swap (y1, y3);   swap (x1, x3); }
-            //if (y2 > y3) { swap (y3, y2);   swap (x3, x2); }
             if (y1 > y4) { swap (y1, y4);   swap (x1, x4); }
             if (y4 > y3) { swap (y3, y4);   swap (x3, x4); }
 
@@ -379,48 +300,76 @@ void Frame::paintEvent(QPaintEvent*) {
             dy31 = y1 - y3;
             dx13 = x3 - x1;
             dy13 = y3 - y1;
-
-             dx14 = x4 - x1;
+            dx14 = x4 - x1;
             dy14 = y4 - y1;
             dx34 = x4 - x3;
             dy34 = y4 - y3;
 
-
-
-            for (float y = y1; y < y4; y += 0.5)
+            for (double y = y1; y < y4; y += 0.5)
                  painter.drawLine (x1 + (dx14/dy14) * (y-y1) , y, x1 + (dx13/dy13) * (y-y1), y);
-
-            for (float y = y3; y > y4; y -= 0.5)
+            for (double y = y3; y > y4; y -= 0.5)
                  painter.drawLine (x3 + (dx34/dy34) * (y-y3) , y, x3 + (dx31/dy31) * (y-y3), y);
-
-
             if (dy13 != 0)
                 painter.drawLine (x4 , y4, x1 + (dx13/dy13) * (y4-y1), y4);
-            if (dy13 != 0)
-                painter.drawLine (x3 + dx34 , y4, x3 + (dx13/dy13) * (y4-y3), y4);
-
-
-
-
-
-           // else
-              //  for(double x = points[i + 1].x; x < points[i].x; x+= 0.5)
-                  //  painter.drawLine(x, points[i].y, x, points[i + 3].y);
-
-
-           /* for (float y = y1; y < y2; y += 0.5)
-                painter.drawLine (x1 + (dx12/dy12) * (y-y1) , y, x1 + (dx13/dy13) * (y-y1), y);
-
-            for (float y = y3; y > y2; y -= 0.5)
-                painter.drawLine (x3 + (dx32/dy32) * (y-y3) , y, x3 + (dx31/dy31) * (y-y3), y);
-
-            if (dy13 != 0)
-                painter.drawLine (x2 , y2, x1 + (dx13/dy13) * (y2-y1), y2);
-            if (dy31 != 0)
-                painter.drawLine (x3 + dx32 , y2, x3 + (dx31/dy31) * (y2-y3), y2);
-            */
 
         }
+        if(bottom) {
+            QPolygonF polygon;
+            QPointF temp;
+            for(int i = 0; i < sizeBottom; i++) {
+                temp.setX(pointsBottom[i].x);
+                temp.setY(pointsBottom[i].y);
+                polygon << temp;
+            }
+            // double I = MakeColor(figure->triangles[i]);// переписать функцию
+             double I = 0.5;
+             if (I > 1.0) I = 1.0;
+             if (I < 0.0) I = 0.0;
+
+             //double R = (figureColorR + lightColorR) / 2;
+            // double G = (figureColorG + lightColorG) / 2;
+            // double B = (figureColorB + lightColorB) / 2;
+             double R = 0;
+             double G = 0;
+             double B = 100;
+            painter.setBrush(QColor(R * I, G * I, B * I));
+            painter.drawPolygon(polygon);
+        }
+    }
+
+
+    /***        draw figure carcas        ***/
+    if(carcasVisible) {
+        for (int i = 0; i < size; i += 4) {
+            a = points[i + 1] - points[i];
+            b = points[i + 3] - points[i];
+            n = VectorComposition(a, b);
+
+            if(ScalarComposition(n, k) >= 0) {
+                painter.drawLine(points[i].x, points[i].y, points[i + 1].x, points[i + 1].y);
+                painter.drawLine(points[i + 1].x, points[i + 1].y, points[i + 2].x, points[i + 2].y);
+                painter.drawLine(points[i + 2].x, points[i + 2].y, points[i + 3].x, points[i + 3].y);
+                painter.drawLine(points[i + 3].x, points[i + 3].y, points[i].x, points[i].y);
+            }
+            else if(visible) {
+                pen.setColor(Qt::darkGray);
+                pen.setWidth(1);
+                pen.setStyle(Qt::DashLine);
+                painter.setPen(pen);
+                painter.drawLine(points[i].x, points[i].y, points[i + 1].x, points[i + 1].y);
+                painter.drawLine(points[i + 1].x, points[i + 1].y, points[i + 2].x, points[i + 2].y);
+                painter.drawLine(points[i + 2].x, points[i + 2].y, points[i + 3].x, points[i + 3].y);
+                painter.drawLine(points[i + 3].x, points[i + 3].y, points[i].x, points[i].y);
+            }
+            pen.setColor(Qt::black);
+            pen.setWidth(3);
+            pen.setStyle(Qt::SolidLine);
+            painter.setPen(pen);
+        }
+
+        if(bottom)
+            for(int i = 0; i < sizeBottom - 1; i++)
+                painter.drawLine(pointsBottom[i].x, pointsBottom[i].y, pointsBottom[i + 1].x, pointsBottom[i + 1].y);
     }
 
 
@@ -430,18 +379,7 @@ void Frame::paintEvent(QPaintEvent*) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-}
+} // конец paint event
 
 
 
@@ -526,5 +464,12 @@ void Frame::on_perspectiveView_toggled(bool checked) {
 
 void Frame::on_Approximation_valueChanged(int arg1) {
     count = arg1;
+    repaint();
+}
+
+void Frame::on_Carcas_visible_toggled(bool checked) {
+    if(checked)
+        carcasVisible = true;
+    else carcasVisible = false;
     repaint();
 }
