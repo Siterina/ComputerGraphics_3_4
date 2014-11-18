@@ -14,6 +14,7 @@ Frame::Frame(QWidget *parent) :
     perspectiveView(false), carcasVisible(false),
     Scale(1), toMove(0),
     count(20),
+    ia(0.2), id(0.6), is(0.5), ka(0.1), kd(0.8), ks(0.5), n_alpha(1),
     ui(new Ui::Frame) {
     toMove.z = 100;
     ui->setupUi(this);
@@ -53,7 +54,7 @@ double ScalarComposition(const NVector a, const NVector b) {
     return result;
 }
 
-double MakeColor(double centerX, double centerY, double centerZ, const NVector N) {
+/*double MakeColor(double centerX, double centerY, double centerZ, const NVector N, double h,double w) {
     NVector center = NVector();
     center.x += centerX / 3;
     center.y += centerY / 3;
@@ -63,11 +64,11 @@ double MakeColor(double centerX, double centerY, double centerZ, const NVector N
     NVector V = NVector(); // (0.0, 0.0, 1.0);
     V.x = 0;
     V.y = 0;
-    V.z = 1;
+    V.z = -1;
     NVector L = NVector();//(3, 3, 7); // lightX, lightY, lightZ
-    L.x = 3;
-    L.y = 3;
-    L.z = 7;
+    L.x = w;
+    L.y = h;
+    L.z = -5 * w;
 
     L = L - center;
     //float d = L.length();
@@ -75,26 +76,127 @@ double MakeColor(double centerX, double centerY, double centerZ, const NVector N
     //float f = 1.0 / (0.1 + 0.1 * d);
     double f = 1.0 / (0.1 + 0.1 * d);
     //L.normalize();
+    if(d != 0) {
     L.x /= d;
     L.y /= d;
     L.z /= d;
+    }
     //QVector3D R = 2 * (QVector3D::dotProduct(N, L)) * N - L; // скалярное
     NVector R = NVector();
     R.x = N.x * 2 * ScalarComposition(N, L);
     R.y = N.y * 2 * ScalarComposition(N, L);
     R.z = N.z * 2 * ScalarComposition(N, L);
     R = R - L;
-    d = sqrt(R.x * R.x + R.y * R.y + R.z * R.z);
+
    // R.normalize();
+    d = sqrt(R.x * R.x + R.y * R.y + R.z * R.z);
+    if(d != 0) {
     R.x /= d;
     R.y /= d;
     R.z /= d;
+    }
+
     //return f * ( Ka * Ia + Kd * Id * QVector3D::dotProduct(L,N) +
             //     Ks * Is * pow (QVector3D::dotProduct(R,V), Alpha) );
-    return f * ( 0.1 * 0.2 + 1.0 * 0.6 * ScalarComposition(L,N) +
-                 0.5 * 0.5 * pow (ScalarComposition(R,V), 2) );
+    return f * ( 0.1 * 0.2 + 0.8 * 0.6 * ScalarComposition(L,N) +
+                 0.5 * 0.5 * pow (ScalarComposition(R,V), 1) );
+
+}*/
+
+/*
+ double Frame::MakeColor(const NVector center, const NVector N, const NVector V, double K) {
+
+
+    // I = Ia + Id + Is
+    // Ia = Ka * ia  фоновое освещение
+   //  Id = Kd * (L,N) * id  рассеянный свет
+    // N нормаль, L направление из точки на источник
+    // Is = Ks * (R, V)^n_alpha * is зеркальный свет
+    // R = 2 * (N, L) * N - L
+
+
+    double I, Ia, Id, Is;
+
+    NVector L = NVector(); // lightX, lightY, lightZ
+    L.x = 1 * K;
+    L.y = 1 * K;
+    L.z = -30 * K;
+    L = L - center;
+    double dL = sqrt(L.x * L.x + L.y * L.y + L.z * L.z);
+    L.x = L.x / dL;
+    L.y = L.y / dL;
+    L.z = L.z / dL;
+
+    NVector R = NVector();
+    R.x = 2 * ScalarComposition(N, L) * N.x;
+    R.y = 2 * ScalarComposition(N, L) * N.y;
+    R.z = 2 * ScalarComposition(N, L) * N.z;
+    R = R - L;
+    double dR = sqrt(R.x * R.x + R.y * R.y + R.z * R.z);
+    R.x = R.x / dR;
+    R.y = R.y / dR;
+    R.z = R.z / dR;
+
+    Ia = ka * ia;
+    Id = kd * ScalarComposition(N, L) * id / (1 + 0.1 * dL);
+    Is = ks * pow(ScalarComposition(R, V), n_alpha) * is / (1 + 0.1 * dL);
+
+    I = Ia + Id + Is;
+
+
+    return I;
 
 }
+    */
+
+    NVector Frame::MakeColor(const NVector center, const NVector N, const NVector V, double K) {
+
+        /*
+         I = Ia + Id + Is
+         Ia = Ka * ia  фоновое освещение
+         Id = Kd * (L,N) * id  рассеянный свет
+         N нормаль, L направление из точки на источник
+         Is = Ks * (R, V)^n_alpha * is зеркальный свет
+         R = 2 * (N, L) * N - L
+
+          */
+        NVector I = NVector();
+        NVector Ia = NVector();
+        NVector Id = NVector();
+        NVector Is = NVector();
+
+        NVector L = NVector(); // lightX, lightY, lightZ
+        L.x = 1 * K;
+        L.y = 1 * K;
+        L.z = -30 * K;
+        L = L - center;
+        double dL = sqrt(L.x * L.x + L.y * L.y + L.z * L.z);
+        L.x = L.x / dL;
+        L.y = L.y / dL;
+        L.z = L.z / dL;
+
+        NVector R = NVector();
+        R.x = 2 * ScalarComposition(N, L) * N.x;
+        R.y = 2 * ScalarComposition(N, L) * N.y;
+        R.z = 2 * ScalarComposition(N, L) * N.z;
+        R = R - L;
+        double dR = sqrt(R.x * R.x + R.y * R.y + R.z * R.z);
+        R.x = R.x / dR;
+        R.y = R.y / dR;
+        R.z = R.z / dR;
+
+        Ia = ka * ia;
+        Id = kd * ScalarComposition(N, L) * id / (1 + 0.1 * dL);
+        Is = ks * pow(ScalarComposition(R, V), n_alpha) * is / (1 + 0.1 * dL);
+
+        I = Ia + Id + Is;
+
+
+        return I;
+
+    }
+
+
 
 void swap(double &a, double &b)
 {
@@ -127,7 +229,7 @@ void Frame::paintEvent(QPaintEvent*) {
     }
 
     pen.setColor(Qt::black);
-    pen.setWidth(3);
+    pen.setWidth(2);
     pen.setStyle(Qt::SolidLine);
     painter.setPen(pen);
 
@@ -139,7 +241,7 @@ void Frame::paintEvent(QPaintEvent*) {
     NVector ToCenter = NVector();
     NVector a = NVector();
     NVector b = NVector();
-    NVector n = NVector();
+    NVector N = NVector();
     NVector k = NVector();
     NMatrix toCheck = NMatrix();
     ToCenter.x = w;
@@ -223,8 +325,8 @@ void Frame::paintEvent(QPaintEvent*) {
         }
 }
 
-    n = VectorComposition(pointsBottom[3] - pointsBottom[2], pointsBottom[1] - pointsBottom[0]);
-    if(ScalarComposition(k, n) >= 0)
+    N = VectorComposition(pointsBottom[3] - pointsBottom[2], pointsBottom[1] - pointsBottom[0]);
+    if(ScalarComposition(k, N) >= 0)
             bottom = true;
 
 
@@ -233,23 +335,27 @@ void Frame::paintEvent(QPaintEvent*) {
     for (int i = 0; i < points.size(); i+= 4) {
         a = points[i + 1] - points[i];
         b = points[i + 3] - points[i];
-        n = VectorComposition(a, b);
+        N = VectorComposition(a, b);
 
-        if(ScalarComposition(n, k) >= 0) {
+        if(ScalarComposition(N, k) >= 0) {
 
             double x1 = points[i].x, y1 = points[i].y;
             double x2 = points[i + 1].x, y2 = points[i + 1].y;
             double x3 = points[i + 2].x, y3 = points[i + 2].y;
             double x4 = points[i + 3].x, y4 = points[i + 3].y;
 
-            double I = MakeColor(abs(x1 - x3)/2, abs(y1 - y3)/2, abs(points[i].z - points[i + 2].z)/2, n);// переписать функцию
+            NVector center = NVector();
+            center.x = abs(x1 - x3)/2;
+            center.y = abs(y1 - y3)/2;
+            center.z = points[i].z;
+            NVector I = NVector();
+            I = MakeColor(center, N, k, K);
             //double I = 0.5;
+            I = abs(I);
+
             if (I > 1.0) I = 1.0;
             if (I < 0.0) I = 0.0;
 
-            //double R = (figureColorR + lightColorR) / 2;
-           // double G = (figureColorG + lightColorG) / 2;
-           // double B = (figureColorB + lightColorB) / 2;
             double R = 0;
             double G = 0;
             double B = 200;
@@ -313,6 +419,7 @@ void Frame::paintEvent(QPaintEvent*) {
                 painter.drawLine (x4 , y4, x1 + (dx13/dy13) * (y4-y1), y4);
 
         }
+    }
         if(bottom) {
             QPolygonF polygon;
             QPointF temp;
@@ -321,21 +428,25 @@ void Frame::paintEvent(QPaintEvent*) {
                 temp.setY(pointsBottom[i].y);
                 polygon << temp;
             }
-            // double I = MakeColor(figure->triangles[i]);// переписать функцию
-             double I = 0.5;
-             if (I > 1.0) I = 1.0;
-             if (I < 0.0) I = 0.0;
+            NVector center = NVector();
+            center.x = abs(pointsBottom[0].x - pointsBottom[sizeBottom / 2].x)/2;
+            center.y = abs(pointsBottom[0].y - pointsBottom[sizeBottom / 2].y)/2;
+            center.z = (pointsBottom[0].z + pointsBottom[sizeBottom / 2].z)/2;
+            double I = MakeColor(center, N, k, K);
+            //double I = 0.5;
+            I = abs(I);
 
-             //double R = (figureColorR + lightColorR) / 2;
-            // double G = (figureColorG + lightColorG) / 2;
-            // double B = (figureColorB + lightColorB) / 2;
-             double R = 0;
-             double G = 0;
-             double B = 100;
+            if (I > 1.0) I = 1.0;
+            if (I < 0.0) I = 0.0;
+
+            double R = 0;
+            double G = 0;
+            double B = 200;
+            painter.setPen(QColor(R * I, G * I, B * I));
             painter.setBrush(QColor(R * I, G * I, B * I));
             painter.drawPolygon(polygon);
         }
-    }
+
 
 
     /***        draw figure carcas        ***/
@@ -343,9 +454,9 @@ void Frame::paintEvent(QPaintEvent*) {
         for (int i = 0; i < size; i += 4) {
             a = points[i + 1] - points[i];
             b = points[i + 3] - points[i];
-            n = VectorComposition(a, b);
+            N = VectorComposition(a, b);
 
-            if(ScalarComposition(n, k) >= 0) {
+            if(ScalarComposition(N, k) >= 0) {
                 painter.drawLine(points[i].x, points[i].y, points[i + 1].x, points[i + 1].y);
                 painter.drawLine(points[i + 1].x, points[i + 1].y, points[i + 2].x, points[i + 2].y);
                 painter.drawLine(points[i + 2].x, points[i + 2].y, points[i + 3].x, points[i + 3].y);
@@ -362,7 +473,7 @@ void Frame::paintEvent(QPaintEvent*) {
                 painter.drawLine(points[i + 3].x, points[i + 3].y, points[i].x, points[i].y);
             }
             pen.setColor(Qt::black);
-            pen.setWidth(3);
+            pen.setWidth(2);
             pen.setStyle(Qt::SolidLine);
             painter.setPen(pen);
         }
@@ -471,5 +582,40 @@ void Frame::on_Carcas_visible_toggled(bool checked) {
     if(checked)
         carcasVisible = true;
     else carcasVisible = false;
+    repaint();
+}
+
+void Frame::on_ia_valueChanged(double arg1) {
+    ia = arg1;
+    repaint();
+}
+
+void Frame::on_id_valueChanged(double arg1) {
+    id = arg1;
+    repaint();
+}
+
+void Frame::on_is_valueChanged(double arg1) {
+    is = arg1;
+    repaint();
+}
+
+void Frame::on_ka_valueChanged(double arg1) {
+    ka = arg1;
+    repaint();
+}
+
+void Frame::on_kd_valueChanged(double arg1) {
+    kd = arg1;
+    repaint();
+}
+
+void Frame::on_ks_valueChanged(double arg1) {
+    ks = arg1;
+    repaint();
+}
+
+void Frame::on_fong_valueChanged(double arg1) {
+    n_alpha = arg1;
     repaint();
 }
