@@ -13,6 +13,7 @@ public:
     NVector(double fill);
     NVector operator+(const NVector v);
     NVector operator-(const NVector v);
+    NVector operator*(const NVector v);
 };
 
 #endif // NVECTOR_H

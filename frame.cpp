@@ -103,7 +103,7 @@ double ScalarComposition(const NVector a, const NVector b) {
 
 }*/
 
-/*
+
  double Frame::MakeColor(const NVector center, const NVector N, const NVector V, double K) {
 
 
@@ -118,9 +118,9 @@ double ScalarComposition(const NVector a, const NVector b) {
     double I, Ia, Id, Is;
 
     NVector L = NVector(); // lightX, lightY, lightZ
-    L.x = 1 * K;
-    L.y = 1 * K;
-    L.z = -30 * K;
+    L.x = 2 * K;
+    L.y = 2 * K;
+    L.z = -3 * K;
     L = L - center;
     double dL = sqrt(L.x * L.x + L.y * L.y + L.z * L.z);
     L.x = L.x / dL;
@@ -138,8 +138,8 @@ double ScalarComposition(const NVector a, const NVector b) {
     R.z = R.z / dR;
 
     Ia = ka * ia;
-    Id = kd * ScalarComposition(N, L) * id / (1 + 0.1 * dL);
-    Is = ks * pow(ScalarComposition(R, V), n_alpha) * is / (1 + 0.1 * dL);
+    Id = kd * ScalarComposition(N, L) * id / (1 +  dL);
+    Is = ks * pow(ScalarComposition(R, V), n_alpha) * is / (1 + dL);
 
     I = Ia + Id + Is;
 
@@ -147,54 +147,9 @@ double ScalarComposition(const NVector a, const NVector b) {
     return I;
 
 }
-    */
-
-    NVector Frame::MakeColor(const NVector center, const NVector N, const NVector V, double K) {
-
-        /*
-         I = Ia + Id + Is
-         Ia = Ka * ia  фоновое освещение
-         Id = Kd * (L,N) * id  рассеянный свет
-         N нормаль, L направление из точки на источник
-         Is = Ks * (R, V)^n_alpha * is зеркальный свет
-         R = 2 * (N, L) * N - L
-
-          */
-        NVector I = NVector();
-        NVector Ia = NVector();
-        NVector Id = NVector();
-        NVector Is = NVector();
-
-        NVector L = NVector(); // lightX, lightY, lightZ
-        L.x = 1 * K;
-        L.y = 1 * K;
-        L.z = -30 * K;
-        L = L - center;
-        double dL = sqrt(L.x * L.x + L.y * L.y + L.z * L.z);
-        L.x = L.x / dL;
-        L.y = L.y / dL;
-        L.z = L.z / dL;
-
-        NVector R = NVector();
-        R.x = 2 * ScalarComposition(N, L) * N.x;
-        R.y = 2 * ScalarComposition(N, L) * N.y;
-        R.z = 2 * ScalarComposition(N, L) * N.z;
-        R = R - L;
-        double dR = sqrt(R.x * R.x + R.y * R.y + R.z * R.z);
-        R.x = R.x / dR;
-        R.y = R.y / dR;
-        R.z = R.z / dR;
-
-        Ia = ka * ia;
-        Id = kd * ScalarComposition(N, L) * id / (1 + 0.1 * dL);
-        Is = ks * pow(ScalarComposition(R, V), n_alpha) * is / (1 + 0.1 * dL);
-
-        I = Ia + Id + Is;
 
 
-        return I;
 
-    }
 
 
 
@@ -348,18 +303,19 @@ void Frame::paintEvent(QPaintEvent*) {
             center.x = abs(x1 - x3)/2;
             center.y = abs(y1 - y3)/2;
             center.z = points[i].z;
-            NVector I = NVector();
-            I = MakeColor(center, N, k, K);
+            double I = MakeColor(center, N, k, K);
             //double I = 0.5;
             I = abs(I);
 
             if (I > 1.0) I = 1.0;
             if (I < 0.0) I = 0.0;
 
-            double R = 0;
-            double G = 0;
+            double R = 100;
+            double G = 50;
             double B = 200;
             painter.setPen(QColor(R * I, G * I, B * I));
+
+
 
             // нижний треугольник
             if (y1 > y2) { swap (y1, y2);   swap (x1, x2); }
@@ -432,6 +388,7 @@ void Frame::paintEvent(QPaintEvent*) {
             center.x = abs(pointsBottom[0].x - pointsBottom[sizeBottom / 2].x)/2;
             center.y = abs(pointsBottom[0].y - pointsBottom[sizeBottom / 2].y)/2;
             center.z = (pointsBottom[0].z + pointsBottom[sizeBottom / 2].z)/2;
+
             double I = MakeColor(center, N, k, K);
             //double I = 0.5;
             I = abs(I);
@@ -439,12 +396,15 @@ void Frame::paintEvent(QPaintEvent*) {
             if (I > 1.0) I = 1.0;
             if (I < 0.0) I = 0.0;
 
-            double R = 0;
-            double G = 0;
+            double R = 100;
+            double G = 50;
             double B = 200;
             painter.setPen(QColor(R * I, G * I, B * I));
             painter.setBrush(QColor(R * I, G * I, B * I));
             painter.drawPolygon(polygon);
+
+
+
         }
 
 
@@ -617,5 +577,10 @@ void Frame::on_ks_valueChanged(double arg1) {
 
 void Frame::on_fong_valueChanged(double arg1) {
     n_alpha = arg1;
+    repaint();
+}
+
+void Frame::on_rFigure_valueChanged(int arg1) {
+    r_figure = arg1;
     repaint();
 }

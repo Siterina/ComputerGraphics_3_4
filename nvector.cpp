@@ -31,6 +31,15 @@ void NVector::operator=(const NVector v) {
 }
 
 
+NVector NVector::operator*(const NVector v) {
+    NVector result = NVector();
+    result.x = x * v.x;
+    result.y = y * v.y;
+    result.z = z * v.z;
+    return result;
+}
+
+
 void NVector::Move(const NVector toMove) {
     x += toMove.x;
     y += toMove.y;

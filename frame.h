@@ -49,7 +49,7 @@ protected:
     void paintEvent(QPaintEvent*);
     void mousePressEvent(QMouseEvent *mEvent);
     void mouseMoveEvent(QMouseEvent *mEvent);
-    NVector Frame::MakeColor(const NVector center, const NVector N, const NVector V, double K);
+    double Frame::MakeColor(const NVector center, const NVector N, const NVector V, double K);
 private slots:
     void on_exitButton_clicked();
     void on_checkBox_toggled(bool checked);
@@ -70,6 +70,7 @@ private slots:
     void on_kd_valueChanged(double arg1);
     void on_ks_valueChanged(double arg1);
     void on_fong_valueChanged(double arg1);
+    void on_rFigure_valueChanged(int arg1);
 };
 
 #endif // FRAME_H
