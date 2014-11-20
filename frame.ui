@@ -38,34 +38,6 @@
        </property>
       </spacer>
      </item>
-     <item row="2" column="2">
-      <widget class="QSlider" name="zoom">
-       <property name="minimumSize">
-        <size>
-         <width>203</width>
-         <height>19</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>203</width>
-         <height>19</height>
-        </size>
-       </property>
-       <property name="minimum">
-        <number>0</number>
-       </property>
-       <property name="maximum">
-        <number>200</number>
-       </property>
-       <property name="value">
-        <number>100</number>
-       </property>
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-      </widget>
-     </item>
      <item row="0" column="2">
       <widget class="QSlider" name="LeftRight">
        <property name="minimumSize">
@@ -91,10 +63,101 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="4">
-      <widget class="QSpinBox" name="ScaleY">
+     <item row="0" column="5">
+      <widget class="QCheckBox" name="checkBox">
+       <property name="text">
+        <string>visible</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="4">
+      <widget class="QSpinBox" name="ScaleX">
        <property name="minimum">
         <number>1</number>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QSlider" name="lightY">
+       <property name="minimumSize">
+        <size>
+         <width>203</width>
+         <height>19</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>203</width>
+         <height>19</height>
+        </size>
+       </property>
+       <property name="minimum">
+        <number>-10</number>
+       </property>
+       <property name="maximum">
+        <number>10</number>
+       </property>
+       <property name="value">
+        <number>2</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QSlider" name="lightX">
+       <property name="minimumSize">
+        <size>
+         <width>203</width>
+         <height>19</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>203</width>
+         <height>19</height>
+        </size>
+       </property>
+       <property name="minimum">
+        <number>-10</number>
+       </property>
+       <property name="maximum">
+        <number>10</number>
+       </property>
+       <property name="value">
+        <number>2</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QSlider" name="lightZ">
+       <property name="minimumSize">
+        <size>
+         <width>203</width>
+         <height>19</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>203</width>
+         <height>19</height>
+        </size>
+       </property>
+       <property name="minimum">
+        <number>-10</number>
+       </property>
+       <property name="maximum">
+        <number>10</number>
+       </property>
+       <property name="pageStep">
+        <number>3</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
        </property>
       </widget>
      </item>
@@ -123,10 +186,41 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="5">
-      <widget class="QCheckBox" name="axleVisible">
-       <property name="text">
-        <string>axle</string>
+     <item row="2" column="2">
+      <widget class="QSlider" name="zoom">
+       <property name="minimumSize">
+        <size>
+         <width>203</width>
+         <height>19</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>203</width>
+         <height>19</height>
+        </size>
+       </property>
+       <property name="minimum">
+        <number>0</number>
+       </property>
+       <property name="maximum">
+        <number>200</number>
+       </property>
+       <property name="singleStep">
+        <number>1</number>
+       </property>
+       <property name="value">
+        <number>100</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="4">
+      <widget class="QSpinBox" name="ScaleY">
+       <property name="minimum">
+        <number>1</number>
        </property>
       </widget>
      </item>
@@ -137,24 +231,24 @@
        </property>
       </widget>
      </item>
+     <item row="3" column="4">
+      <widget class="QSpinBox" name="rFigure">
+       <property name="value">
+        <number>2</number>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="5">
+      <widget class="QCheckBox" name="axleVisible">
+       <property name="text">
+        <string>axle</string>
+       </property>
+      </widget>
+     </item>
      <item row="2" column="5">
       <widget class="QCheckBox" name="perspectiveView">
        <property name="text">
         <string>perspective</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="5">
-      <widget class="QCheckBox" name="checkBox">
-       <property name="text">
-        <string>visible</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="4">
-      <widget class="QSpinBox" name="ScaleX">
-       <property name="minimum">
-        <number>1</number>
        </property>
       </widget>
      </item>
@@ -167,7 +261,138 @@
      </item>
     </layout>
    </item>
-   <item row="3" column="1">
+   <item row="2" column="1">
+    <layout class="QGridLayout" name="gridLayout_3">
+     <item row="3" column="3">
+      <widget class="QSpinBox" name="IAmbientR">
+       <property name="maximum">
+        <number>255</number>
+       </property>
+       <property name="value">
+        <number>100</number>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="2">
+      <widget class="QSpinBox" name="IFigureR">
+       <property name="minimum">
+        <number>0</number>
+       </property>
+       <property name="maximum">
+        <number>255</number>
+       </property>
+       <property name="value">
+        <number>100</number>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QSpinBox" name="ILightR">
+       <property name="maximum">
+        <number>255</number>
+       </property>
+       <property name="value">
+        <number>255</number>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="3">
+      <widget class="QSpinBox" name="IAmbientG">
+       <property name="maximum">
+        <number>255</number>
+       </property>
+       <property name="value">
+        <number>100</number>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="2">
+      <widget class="QSpinBox" name="IFigureG">
+       <property name="maximum">
+        <number>255</number>
+       </property>
+       <property name="value">
+        <number>50</number>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="QSpinBox" name="ILightG">
+       <property name="maximum">
+        <number>255</number>
+       </property>
+       <property name="value">
+        <number>255</number>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="1">
+      <widget class="QSpinBox" name="ILightB">
+       <property name="maximum">
+        <number>255</number>
+       </property>
+       <property name="value">
+        <number>255</number>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="2">
+      <widget class="QSpinBox" name="IFigureB">
+       <property name="maximum">
+        <number>255</number>
+       </property>
+       <property name="value">
+        <number>200</number>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="3">
+      <widget class="QSpinBox" name="IAmbientB">
+       <property name="maximum">
+        <number>255</number>
+       </property>
+       <property name="value">
+        <number>100</number>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>ILight</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="2">
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>IFigure</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="3">
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>IAmbient</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <spacer name="horizontalSpacer_4">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item row="5" column="1">
     <spacer name="horizontalSpacer_2">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -180,9 +405,9 @@
      </property>
     </spacer>
    </item>
-   <item row="2" column="1">
+   <item row="7" column="1">
     <layout class="QGridLayout" name="gridLayout">
-     <item row="4" column="2">
+     <item row="1" column="2">
       <widget class="QDoubleSpinBox" name="ka">
        <property name="maximum">
         <double>1.000000000000000</double>
@@ -191,7 +416,7 @@
         <double>0.100000000000000</double>
        </property>
        <property name="value">
-        <double>0.100000000000000</double>
+        <double>0.200000000000000</double>
        </property>
       </widget>
      </item>
@@ -228,61 +453,28 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="2">
-      <widget class="QDoubleSpinBox" name="ia">
-       <property name="maximum">
-        <double>1.000000000000000</double>
-       </property>
-       <property name="singleStep">
-        <double>0.100000000000000</double>
-       </property>
-       <property name="value">
-        <double>0.200000000000000</double>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="2">
-      <widget class="QDoubleSpinBox" name="id">
-       <property name="maximum">
-        <double>1.000000000000000</double>
-       </property>
-       <property name="singleStep">
-        <double>0.100000000000000</double>
-       </property>
-       <property name="value">
-        <double>0.600000000000000</double>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="1">
-      <widget class="QLabel" name="label_4">
-       <property name="text">
-        <string>I_specular</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="1">
+     <item row="1" column="1">
       <widget class="QLabel" name="label_5">
        <property name="text">
         <string>K_ambient</string>
        </property>
       </widget>
      </item>
-     <item row="5" column="1">
+     <item row="2" column="1">
       <widget class="QLabel" name="label_6">
        <property name="text">
         <string>K_diffuse</string>
        </property>
       </widget>
      </item>
-     <item row="6" column="1">
+     <item row="3" column="1">
       <widget class="QLabel" name="label_7">
        <property name="text">
         <string>K_specular</string>
        </property>
       </widget>
      </item>
-     <item row="8" column="1">
+     <item row="5" column="1">
       <widget class="QPushButton" name="exitButton">
        <property name="text">
         <string>exit</string>
@@ -290,26 +482,6 @@
       </widget>
      </item>
      <item row="3" column="2">
-      <widget class="QDoubleSpinBox" name="is">
-       <property name="maximum">
-        <double>1.000000000000000</double>
-       </property>
-       <property name="singleStep">
-        <double>0.100000000000000</double>
-       </property>
-       <property name="value">
-        <double>0.500000000000000</double>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QLabel" name="label_2">
-       <property name="text">
-        <string>I_ambient</string>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="2">
       <widget class="QDoubleSpinBox" name="ks">
        <property name="maximum">
         <double>1.000000000000000</double>
@@ -322,14 +494,7 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="1">
-      <widget class="QLabel" name="label_3">
-       <property name="text">
-        <string>I_diffuse</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="2">
+     <item row="2" column="2">
       <widget class="QDoubleSpinBox" name="kd">
        <property name="maximum">
         <double>1.000000000000000</double>
@@ -342,7 +507,7 @@
        </property>
       </widget>
      </item>
-     <item row="7" column="2">
+     <item row="4" column="2">
       <widget class="QDoubleSpinBox" name="fong">
        <property name="minimum">
         <double>1.000000000000000</double>
@@ -355,7 +520,7 @@
        </property>
       </widget>
      </item>
-     <item row="7" column="1">
+     <item row="4" column="1">
       <widget class="QLabel" name="label_8">
        <property name="text">
         <string>n_Fong</string>

@@ -14,7 +14,11 @@ Frame::Frame(QWidget *parent) :
     perspectiveView(false), carcasVisible(false),
     Scale(1), toMove(0),
     count(20),
-    ia(0.2), id(0.6), is(0.5), ka(0.1), kd(0.8), ks(0.5), n_alpha(1),
+    ka(0.2), kd(0.8), ks(0.5), n_alpha(1),
+    lightX(2), lightY(2), lightZ(-3),
+    ILightR(1), ILightG(1), ILightB(1),
+    IFigureR(0.392), IFigureG(0.196), IFigureB(0.784),
+    IAmbientR(0.392), IAmbientG(0.392), IAmbientB(0.392),
     ui(new Ui::Frame) {
     toMove.z = 100;
     ui->setupUi(this);
@@ -104,7 +108,7 @@ double ScalarComposition(const NVector a, const NVector b) {
 }*/
 
 
- double Frame::MakeColor(const NVector center, const NVector N, const NVector V, double K) {
+NVector Frame::MakeColor(const NVector center, const NVector N, const NVector V, double K) {
 
 
     // I = Ia + Id + Is
@@ -115,12 +119,31 @@ double ScalarComposition(const NVector a, const NVector b) {
     // R = 2 * (N, L) * N - L
 
 
-    double I, Ia, Id, Is;
+    NVector I = NVector();
+    NVector Il = NVector();
+    NVector It = NVector();
+    NVector I0 = NVector();
+
+    NVector Ia = NVector();
+    NVector Id = NVector();
+    NVector Is = NVector();
+
+    Il.x = ILightR;
+    Il.y = ILightG;
+    Il.z = ILightB;
+
+    It.x = IFigureR;
+    It.y = IFigureG;
+    It.z = IFigureB;
+
+    I0.x = IAmbientR;
+    I0.y = IAmbientG;
+    I0.z = IAmbientB;
 
     NVector L = NVector(); // lightX, lightY, lightZ
-    L.x = 2 * K;
-    L.y = 2 * K;
-    L.z = -3 * K;
+    L.x = lightX * K;
+    L.y = lightY * K;
+    L.z = lightZ * K;
     L = L - center;
     double dL = sqrt(L.x * L.x + L.y * L.y + L.z * L.z);
     L.x = L.x / dL;
@@ -137,18 +160,46 @@ double ScalarComposition(const NVector a, const NVector b) {
     R.y = R.y / dR;
     R.z = R.z / dR;
 
-    Ia = ka * ia;
-    Id = kd * ScalarComposition(N, L) * id / (1 +  dL);
-    Is = ks * pow(ScalarComposition(R, V), n_alpha) * is / (1 + dL);
+    Ia = I0 * It;
+    Ia.x *= ka;
+    Ia.y *= ka;
+    Ia.z *= ka;
+
+    Id = Il * It;
+    Id.x *= kd * ScalarComposition(N, L) / (1 +  dL);
+    Id.y *= kd * ScalarComposition(N, L) / (1 +  dL);
+    Id.z *= kd * ScalarComposition(N, L) / (1 +  dL);
+
+    Is = Il;
+    Is.x *= ks * pow(ScalarComposition(R, V), n_alpha) / (1 + dL);
+    Is.y *= ks * pow(ScalarComposition(R, V), n_alpha) / (1 + dL);
+    Is.z *= ks * pow(ScalarComposition(R, V), n_alpha) / (1 + dL);
 
     I = Ia + Id + Is;
+    if(I.x > 1)
+        I.x = 1;
+    if(I.y > 1)
+        I.y = 1;
+    if(I.z > 1)
+        I.z = 1;
+    if(I.x < 0)
+        I.x = 0;
+    if(I.y < 0)
+        I.y = 0;
+    if(I.z < 0)
+        I.z = 0;
 
+    I.x *= 255;
+    I.y *= 255;
+    I.z *= 255;
 
     return I;
 
 }
 
-
+//200 100 200
+//100 50 50
+//10 10 10
 
 
 
@@ -303,17 +354,12 @@ void Frame::paintEvent(QPaintEvent*) {
             center.x = abs(x1 - x3)/2;
             center.y = abs(y1 - y3)/2;
             center.z = points[i].z;
-            double I = MakeColor(center, N, k, K);
+            NVector I = NVector();
+            I = MakeColor(center, N, k, K);
             //double I = 0.5;
-            I = abs(I);
 
-            if (I > 1.0) I = 1.0;
-            if (I < 0.0) I = 0.0;
 
-            double R = 100;
-            double G = 50;
-            double B = 200;
-            painter.setPen(QColor(R * I, G * I, B * I));
+            painter.setPen(QColor(I.x, I.y, I.z));
 
 
 
@@ -385,22 +431,17 @@ void Frame::paintEvent(QPaintEvent*) {
                 polygon << temp;
             }
             NVector center = NVector();
-            center.x = abs(pointsBottom[0].x - pointsBottom[sizeBottom / 2].x)/2;
-            center.y = abs(pointsBottom[0].y - pointsBottom[sizeBottom / 2].y)/2;
+            center.x = abs(pointsBottom[0].x + pointsBottom[sizeBottom / 2].x)/2;
+            center.y = abs(pointsBottom[0].y + pointsBottom[sizeBottom / 2].y)/2;
             center.z = (pointsBottom[0].z + pointsBottom[sizeBottom / 2].z)/2;
 
-            double I = MakeColor(center, N, k, K);
+            NVector I = NVector();
+            I = MakeColor(center, N, k, K);
             //double I = 0.5;
-            I = abs(I);
 
-            if (I > 1.0) I = 1.0;
-            if (I < 0.0) I = 0.0;
 
-            double R = 100;
-            double G = 50;
-            double B = 200;
-            painter.setPen(QColor(R * I, G * I, B * I));
-            painter.setBrush(QColor(R * I, G * I, B * I));
+            painter.setPen(QColor(I.x, I.y, I.z));
+            painter.setBrush(QColor(I.x, I.y, I.z));
             painter.drawPolygon(polygon);
 
 
@@ -545,20 +586,6 @@ void Frame::on_Carcas_visible_toggled(bool checked) {
     repaint();
 }
 
-void Frame::on_ia_valueChanged(double arg1) {
-    ia = arg1;
-    repaint();
-}
-
-void Frame::on_id_valueChanged(double arg1) {
-    id = arg1;
-    repaint();
-}
-
-void Frame::on_is_valueChanged(double arg1) {
-    is = arg1;
-    repaint();
-}
 
 void Frame::on_ka_valueChanged(double arg1) {
     ka = arg1;
@@ -582,5 +609,66 @@ void Frame::on_fong_valueChanged(double arg1) {
 
 void Frame::on_rFigure_valueChanged(int arg1) {
     r_figure = arg1;
+    repaint();
+}
+
+void Frame::on_lightX_sliderMoved(int position) {
+    lightX = (double)position;
+    repaint();
+}
+
+void Frame::on_lightY_sliderMoved(int position) {
+    lightY = (double)position;
+    repaint();
+}
+
+void Frame::on_lightZ_sliderMoved(int position) {
+    lightZ = (double)position;
+    repaint();
+}
+
+
+void Frame::on_ILightR_valueChanged(int arg1) {
+    ILightR = (double)arg1 / 255.0;
+    repaint();
+}
+
+void Frame::on_ILightG_valueChanged(int arg1) {
+    ILightG = (double)arg1 / 255.0;
+    repaint();
+}
+
+void Frame::on_ILightB_valueChanged(int arg1) {
+    ILightB = (double)arg1 / 255.0;
+    repaint();
+}
+
+void Frame::on_IFigureR_valueChanged(int arg1) {
+    IFigureR = (double)arg1 / 255.0;
+    repaint();
+}
+
+void Frame::on_IFigureG_valueChanged(int arg1) {
+    IFigureG = (double)arg1 / 255.0;
+    repaint();
+}
+
+void Frame::on_IFigureB_valueChanged(int arg1) {
+    IFigureB = (double)arg1 / 255.0;
+    repaint();
+}
+
+void Frame::on_IAmbientR_valueChanged(int arg1) {
+    IAmbientR = (double)arg1 / 255.0;
+    repaint();
+}
+
+void Frame::on_IAmbientG_valueChanged(int arg1) {
+    IAmbientG = (double)arg1 / 255.0;
+    repaint();
+}
+
+void Frame::on_IAmbientB_valueChanged(int arg1) {
+    IAmbientB = (double)arg1 / 255.0;
     repaint();
 }

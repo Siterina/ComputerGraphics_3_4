@@ -35,9 +35,12 @@ public:
     QPen pen;
     NVector Scale;
     NVector toMove;
-    double ia, id, is;
     double ka, kd, ks;
     double n_alpha;
+    double lightX, lightY, lightZ;
+    double ILightR, ILightG, ILightB;
+    double IFigureR, IFigureG, IFigureB;
+    double IAmbientR, IAmbientG, IAmbientB;
 
 
 
@@ -49,7 +52,7 @@ protected:
     void paintEvent(QPaintEvent*);
     void mousePressEvent(QMouseEvent *mEvent);
     void mouseMoveEvent(QMouseEvent *mEvent);
-    double Frame::MakeColor(const NVector center, const NVector N, const NVector V, double K);
+    NVector Frame::MakeColor(const NVector center, const NVector N, const NVector V, double K);
 private slots:
     void on_exitButton_clicked();
     void on_checkBox_toggled(bool checked);
@@ -63,14 +66,24 @@ private slots:
     void on_zoom_sliderMoved(int position);
     void on_Approximation_valueChanged(int arg1);
     void on_Carcas_visible_toggled(bool checked);
-    void on_ia_valueChanged(double arg1);
-    void on_id_valueChanged(double arg1);
-    void on_is_valueChanged(double arg1);
     void on_ka_valueChanged(double arg1);
     void on_kd_valueChanged(double arg1);
     void on_ks_valueChanged(double arg1);
     void on_fong_valueChanged(double arg1);
     void on_rFigure_valueChanged(int arg1);
+    void on_lightX_sliderMoved(int position);
+    void on_lightY_sliderMoved(int position);
+    void on_lightZ_sliderMoved(int position);
+
+    void on_ILightR_valueChanged(int arg1);
+    void on_ILightG_valueChanged(int arg1);
+    void on_ILightB_valueChanged(int arg1);
+    void on_IFigureR_valueChanged(int arg1);
+    void on_IFigureG_valueChanged(int arg1);
+    void on_IFigureB_valueChanged(int arg1);
+    void on_IAmbientR_valueChanged(int arg1);
+    void on_IAmbientG_valueChanged(int arg1);
+    void on_IAmbientB_valueChanged(int arg1);
 };
 
 #endif // FRAME_H
